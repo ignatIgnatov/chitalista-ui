@@ -1,3 +1,13 @@
-# https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Allow: /
+
+Sitemap: https://narodnichitalishta.bg/sitemap.xml
+
+# Забраняване на административни панели
+Disallow: /admin
+Disallow: /api/admin
+Disallow: /login
+
+# Разрешаване на търсачките за статични файлове
+Allow: /static/
+Allow: /images/

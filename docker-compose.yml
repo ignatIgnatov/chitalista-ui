@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  frontend:
+    build: .
+    container_name: articles-frontend
+    ports:
+      - "3000:80"
+    environment:
+      REACT_APP_API_URL: http://localhost:8080/api
+    networks:
+      - articles-frontend-network
+
+networks:
+  articles-frontend-network:
+    driver: bridge
