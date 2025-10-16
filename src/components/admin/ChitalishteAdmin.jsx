@@ -458,7 +458,7 @@ const InformationCardsManager = ({ chitalishte, onBack }) => {
     }
 
     return (
-        <Box>
+        <Box sx={{px: 3}}>
             {/* Header */}
             <Box sx={{ mb: 3 }}>
                 <Button
@@ -548,17 +548,17 @@ const InformationCardsManager = ({ chitalishte, onBack }) => {
                                     <TableCell>
                                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                                             <Chip
-                                                label={`Фолклор: ${card.folkloreFormations || 0}`}
+                                                label={`Фолклорни: ${card.folkloreFormations || 0}`}
                                                 size="small"
                                                 variant="outlined"
                                             />
                                             <Chip
-                                                label={`Театър: ${card.theatreFormations || 0}`}
+                                                label={`Театрални: ${card.theatreFormations || 0}`}
                                                 size="small"
                                                 variant="outlined"
                                             />
                                             <Chip
-                                                label={`Танц: ${card.dancingGroups || 0}`}
+                                                label={`Танцови: ${card.dancingGroups || 0}`}
                                                 size="small"
                                                 variant="outlined"
                                             />
@@ -567,12 +567,12 @@ const InformationCardsManager = ({ chitalishte, onBack }) => {
                                     <TableCell>
                                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                                             <Chip
-                                                label={`Сам: ${card.projectsParticipationLeading || 0}`}
+                                                label={`Самостоятелни: ${card.projectsParticipationLeading || 0}`}
                                                 size="small"
                                                 variant="outlined"
                                             />
                                             <Chip
-                                                label={`Парт: ${card.projectsParticipationPartner || 0}`}
+                                                label={`Партньорски: ${card.projectsParticipationPartner || 0}`}
                                                 size="small"
                                                 variant="outlined"
                                             />

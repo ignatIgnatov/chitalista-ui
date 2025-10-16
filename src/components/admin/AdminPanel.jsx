@@ -129,7 +129,7 @@ const AdminPanel = () => {
         {/* Debug Info */}
         <Alert severity="success" sx={{ mb: 2 }}>
           <Typography variant="body2">
-            Добре дошли, администратор! <strong>{user?.username}</strong>
+            Добре дошлъл, администратор!
           </Typography>
         </Alert>
 
@@ -154,23 +154,7 @@ const AdminPanel = () => {
                 </Typography>
               </Box>
             </Box>
-            <Box sx={{ textAlign: 'right' }}>
-              <Chip 
-                label="ADMIN" 
-                color="success" 
-                variant="filled"
-                sx={{ 
-                  color: 'white',
-                  fontWeight: 700,
-                  fontSize: '1rem',
-                  px: 2,
-                  py: 1
-                }}
-              />
-              {/* <Typography variant="body2" sx={{ mt: 1, opacity: 0.8 }}>
-                {user?.username || 'Администратор'}
-              </Typography> */}
-            </Box>
+           
           </Box>
         </Paper>
 

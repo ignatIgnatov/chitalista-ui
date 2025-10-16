@@ -32,7 +32,7 @@ const ChitalishteFilters = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    
+
     if (!filters.name && !filters.region && !filters.municipality && !filters.town) {
       dispatch(fetchAllChitalishta());
     } else {
@@ -51,8 +51,8 @@ const ChitalishteFilters = () => {
   };
 
   return (
-    <Paper sx={{ 
-      p: 4, 
+    <Paper sx={{
+      p: 4,
       mb: 4,
       background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
       borderRadius: 3,
@@ -65,7 +65,7 @@ const ChitalishteFilters = () => {
               fullWidth
               label="Търсене по име"
               value={filters.name}
-              onChange={(e) => setFilters({...filters, name: e.target.value})}
+              onChange={(e) => setFilters({ ...filters, name: e.target.value })}
               InputProps={{
                 startAdornment: <Search sx={{ mr: 1, color: 'primary.main' }} />
               }}
@@ -77,14 +77,14 @@ const ChitalishteFilters = () => {
               }}
             />
           </Grid>
-          
+
           <Grid item xs={12} sm={6} md={2}>
             <TextField
               fullWidth
               select
               label="Населено място"
               value={filters.town}
-              onChange={(e) => setFilters({...filters, town: e.target.value})}
+              onChange={(e) => setFilters({ ...filters, town: e.target.value })}
               sx={{
                 '& .MuiOutlinedInput-root': {
                   borderRadius: 2,
@@ -107,7 +107,7 @@ const ChitalishteFilters = () => {
               select
               label="Община"
               value={filters.municipality}
-              onChange={(e) => setFilters({...filters, municipality: e.target.value})}
+              onChange={(e) => setFilters({ ...filters, municipality: e.target.value })}
               sx={{
                 '& .MuiOutlinedInput-root': {
                   borderRadius: 2,
@@ -130,7 +130,7 @@ const ChitalishteFilters = () => {
               select
               label="Област"
               value={filters.region}
-              onChange={(e) => setFilters({...filters, region: e.target.value})}
+              onChange={(e) => setFilters({ ...filters, region: e.target.value })}
               sx={{
                 '& .MuiOutlinedInput-root': {
                   borderRadius: 2,
@@ -148,11 +148,11 @@ const ChitalishteFilters = () => {
           </Grid>
 
           <Grid item xs={12} sm={6} md={3}>
-            <Box sx={{ display: 'flex', gap: 2 }}>
+            <Box sx={{ display: 'flex', gap: 2, }}>
               <Button
                 type="submit"
                 variant="contained"
-                sx={{ 
+                sx={{
                   flex: 1,
                   borderRadius: 2,
                   py: 1,
@@ -165,7 +165,7 @@ const ChitalishteFilters = () => {
                 variant="outlined"
                 startIcon={<Clear />}
                 onClick={handleClearFilters}
-                sx={{ 
+                sx={{
                   flex: 1,
                   borderRadius: 2,
                   py: 1
