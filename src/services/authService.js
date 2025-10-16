@@ -1,27 +1,31 @@
+// src/services/authService.js
 import api from './api';
 
 export const authService = {
   login: async (credentials) => {
-    try {
-      console.log('Sending login request:', credentials);
-      const response = await api.post('/auth/login', credentials, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        timeout: 10000
-      });
-      console.log('Login response:', response);
-      return response;
-    } catch (error) {
-      console.error('Login error:', error);
-      throw error;
-    }
+    // Backend очаква username и password
+    const loginData = {
+      username: credentials.username,
+      password: credentials.password
+    };
+    
+    console.log('Sending login request:', loginData);
+    
+    const response = await api.post('/auth/login', loginData);
+    console.log('Login response:', response.data);
+    return response;
   },
 
-  getCurrentUser: () => {
-    const token = localStorage.getItem('token');
-    return token ? { token } : null;
+  logout: () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+  },
+
+  getToken: () => {
+    return localStorage.getItem('token');
+  },
+
+  isAuthenticated: () => {
+    return !!localStorage.getItem('token');
   }
 };
-
-export default authService;

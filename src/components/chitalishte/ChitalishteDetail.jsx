@@ -1,4 +1,7 @@
 import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { clearCurrentChitalishte } from '../../store/slices/chitalishtaSlice';
+import { selectInformationCardsByChitalishteId } from '../../store/slices/chitalishtaSlice';
 import {
   Container,
   Box,
@@ -9,7 +12,11 @@ import {
   Tab,
   Grid,
   Chip,
-  Divider,
+  Card,
+  CardContent,
+  Fade,
+  Slide,
+  Grow,
   Table,
   TableBody,
   TableCell,
@@ -30,12 +37,18 @@ import {
   ArrowBack,
   Event,
   Work,
-  People
+  People,
+  Star,
+  Public,
+  History,
+  TrendingUp,
+  Group,
+  Book,
+  Museum,
+  TheaterComedy,
+  MusicNote,
+  Sports
 } from '@mui/icons-material';
-import { useChitalishte } from '../../contexts/ChitalishteContext';
-
-// Импортираме fieldLabels директно от data файла
-import { fieldLabels } from '../../data/chitalishteData';
 
 function TabPanel({ children, value, index, ...other }) {
   return (
@@ -51,103 +64,238 @@ function TabPanel({ children, value, index, ...other }) {
   );
 }
 
-const YearlyDataTable = ({ data, year }) => {
-  if (!data) return null;
-
-  const significantFields = [
-    'total_members_count',
-    'membership_applications',
-    'new_members',
-    'rejected_members',
-    'employees_count',
-    'subsidiary_count',
-    'projects_participation_leading',
-    'projects_participation_partner',
-    'participation_in_trainings',
-    'library_activity'
-  ];
+const YearlyDataTable = ({ informationCards }) => {
+  if (!informationCards || informationCards.length === 0) {
+    return (
+      <Box sx={{ textAlign: 'center', py: 6 }}>
+        <Typography variant="h6" color="text.secondary">
+          Няма налични данни за информационни карти
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
-    <Box sx={{ mb: 4 }}>
-      <Typography variant="h6" sx={{ mb: 2 }}>Данни за {year} година</Typography>
-      <TableContainer component={Paper}>
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell>Показател</TableCell>
-              <TableCell align="right">Стойност</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {significantFields.map(field => (
-              <TableRow key={field}>
-                <TableCell component="th" scope="row">
-                  {fieldLabels[field]}
-                </TableCell>
-                <TableCell align="right">
-                  {data[field] || data[field] === 0 ? data[field] : 'Няма данни'}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+    <Box>
+      {informationCards.map((card, index) => (
+        <Box key={card.id || index} sx={{ mb: 4 }}>
+          <Typography variant="h6" sx={{ mb: 2, color: 'primary.main' }}>
+            Информационна карта {card.year ? `за ${card.year} година` : ''}
+          </Typography>
+          <TableContainer component={Paper} elevation={2}>
+            <Table size="small">
+              <TableHead>
+                <TableRow sx={{ backgroundColor: 'primary.main' }}>
+                  <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Показател</TableCell>
+                  <TableCell align="right" sx={{ color: 'white', fontWeight: 'bold' }}>Стойност</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {card.totalMembersCount !== undefined && (
+                  <TableRow hover>
+                    <TableCell component="th" scope="row" sx={{ fontWeight: 'medium' }}>
+                      Общ брой членове
+                    </TableCell>
+                    <TableCell align="right">{card.totalMembersCount}</TableCell>
+                  </TableRow>
+                )}
+                {card.newMembers !== undefined && (
+                  <TableRow hover>
+                    <TableCell component="th" scope="row" sx={{ fontWeight: 'medium' }}>
+                      Нови членове
+                    </TableCell>
+                    <TableCell align="right">{card.newMembers}</TableCell>
+                  </TableRow>
+                )}
+                {card.employeesCount !== undefined && (
+                  <TableRow hover>
+                    <TableCell component="th" scope="row" sx={{ fontWeight: 'medium' }}>
+                      Брой служители
+                    </TableCell>
+                    <TableCell align="right">{card.employeesCount}</TableCell>
+                  </TableRow>
+                )}
+                {card.folkloreFormations !== undefined && (
+                  <TableRow hover>
+                    <TableCell component="th" scope="row" sx={{ fontWeight: 'medium' }}>
+                      Фолклорни формации
+                    </TableCell>
+                    <TableCell align="right">{card.folkloreFormations}</TableCell>
+                  </TableRow>
+                )}
+                {card.theatreFormations !== undefined && (
+                  <TableRow hover>
+                    <TableCell component="th" scope="row" sx={{ fontWeight: 'medium' }}>
+                      Театрални формации
+                    </TableCell>
+                    <TableCell align="right">{card.theatreFormations}</TableCell>
+                  </TableRow>
+                )}
+                {card.dancingGroups !== undefined && (
+                  <TableRow hover>
+                    <TableCell component="th" scope="row" sx={{ fontWeight: 'medium' }}>
+                      Танцови групи
+                    </TableCell>
+                    <TableCell align="right">{card.dancingGroups}</TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+      ))}
     </Box>
   );
 };
 
-const CulturalActivitiesSection = ({ data, year }) => {
+const CulturalActivitiesSection = ({ informationCards }) => {
+  if (!informationCards || informationCards.length === 0) {
+    return (
+      <Box sx={{ textAlign: 'center', py: 6 }}>
+        <Typography variant="h6" color="text.secondary">
+          Няма данни за културни дейности
+        </Typography>
+      </Box>
+    );
+  }
+
   const culturalFields = [
-    'folklore_formations',
-    'theatre_formations',
-    'dancing_groups',
-    'modern_ballet',
-    'vocal_groups',
-    'workshops_clubs_arts',
-    'language_courses',
-    'kraeznanie_clubs',
-    'museum_collections'
+    { key: 'folkloreFormations', label: 'Фолклорни формации', icon: <MusicNote /> },
+    { key: 'theatreFormations', label: 'Театрални формации', icon: <TheaterComedy /> },
+    { key: 'dancingGroups', label: 'Танцови групи', icon: <Sports /> },
+    { key: 'vocalGroups', label: 'Вокални групи', icon: <MusicNote /> },
+    { key: 'workshopsClubsArts', label: 'Клубове по изкуства', icon: <Book /> },
+    { key: 'museumCollections', label: 'Музейни колекции', icon: <Museum /> }
   ];
 
-  const hasCulturalData = culturalFields.some(field => data[field]);
+  return (
+    <Box>
+      {informationCards.map((card, index) => (
+        <Box key={card.id || index} sx={{ mb: 4 }}>
+          <Typography variant="h6" sx={{ mb: 3, color: 'secondary.main' }}>
+            Културни дейности {card.year ? `(${card.year} година)` : ''}
+          </Typography>
+          <Grid container spacing={2}>
+            {culturalFields.map(field => {
+              if (card[field.key] === undefined) return null;
 
-  if (!hasCulturalData) return null;
+              return (
+                <Grid item xs={12} sm={6} md={4} key={field.key}>
+                  <Paper
+                    sx={{
+                      p: 3,
+                      textAlign: 'center',
+                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      color: 'white',
+                      transition: 'transform 0.3s ease',
+                      '&:hover': {
+                        transform: 'translateY(-4px)'
+                      }
+                    }}
+                    elevation={3}
+                  >
+                    <Box sx={{ mb: 1 }}>
+                      {field.icon}
+                    </Box>
+                    <Typography variant="h3" sx={{ fontWeight: 'bold', mb: 1 }}>
+                      {card[field.key]}
+                    </Typography>
+                    <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                      {field.label}
+                    </Typography>
+                  </Paper>
+                </Grid>
+              );
+            })}
+          </Grid>
+        </Box>
+      ))}
+    </Box>
+  );
+};
+
+const ProjectsAndStaffSection = ({ informationCards }) => {
+  if (!informationCards || informationCards.length === 0) {
+    return (
+      <Box sx={{ textAlign: 'center', py: 6 }}>
+        <Typography variant="h6" color="text.secondary">
+          Няма данни за проекти и персонал
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
-    <Box sx={{ mb: 3 }}>
-      <Typography variant="h6" sx={{ mb: 2 }}>Културни дейности ({year})</Typography>
-      <Grid container spacing={1}>
-        {culturalFields.map(field => {
-          if (!data[field] && data[field] !== 0) return null;
-          
-          return (
-            <Grid item xs={12} sm={6} md={4} key={field}>
-              <Paper sx={{ p: 2, textAlign: 'center' }}>
-                <Typography variant="h4" color="primary">
-                  {data[field]}
-                </Typography>
-                <Typography variant="body2">
-                  {fieldLabels[field]}
-                </Typography>
+    <Box>
+      {informationCards.map((card, index) => (
+        <Box key={card.id || index} sx={{ mb: 4 }}>
+          <Typography variant="h6" sx={{ mb: 2 }}>{card.year ? `${card.year} година` : 'Данни'}</Typography>
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={6}>
+              <Paper sx={{ p: 3 }}>
+                <Typography variant="h6" sx={{ mb: 2 }} color="primary">Проекти</Typography>
+                <Box sx={{ space: 1 }}>
+                  {card.projectsParticipationLeading !== undefined && (
+                    <Typography>
+                      <strong>Самостоятелни проекти:</strong> {card.projectsParticipationLeading}
+                    </Typography>
+                  )}
+                  {card.projectsParticipationPartner !== undefined && (
+                    <Typography>
+                      <strong>Проекти в сътрудничество:</strong> {card.projectsParticipationPartner}
+                    </Typography>
+                  )}
+                  {card.participationInTrainings !== undefined && (
+                    <Typography>
+                      <strong>Участия в обучения:</strong> {card.participationInTrainings}
+                    </Typography>
+                  )}
+                </Box>
               </Paper>
             </Grid>
-          );
-        })}
-      </Grid>
+
+            <Grid item xs={12} md={6}>
+              <Paper sx={{ p: 3 }}>
+                <Typography variant="h6" sx={{ mb: 2 }} color="secondary">Персонал</Typography>
+                <Box sx={{ space: 1 }}>
+                  {card.employeesCount !== undefined && (
+                    <Typography>
+                      <strong>Общ персонал:</strong> {card.employeesCount}
+                    </Typography>
+                  )}
+                  {card.subsidiaryCount !== undefined && (
+                    <Typography>
+                      <strong>Субсидирани бройки:</strong> {card.subsidiaryCount}
+                    </Typography>
+                  )}
+                  {card.employeesWithHigherEducation !== undefined && (
+                    <Typography>
+                      <strong>Специалисти с висше:</strong> {card.employeesWithHigherEducation}
+                    </Typography>
+                  )}
+                </Box>
+              </Paper>
+            </Grid>
+          </Grid>
+        </Box>
+      ))}
     </Box>
   );
 };
 
-const ChitalishteDetail = () => {
-  const { selectedChitalishte, dispatch } = useChitalishte();
+const ChitalishteDetail = ({ chitalishte }) => {
+  const dispatch = useDispatch();
+  const informationCards = useSelector((state) =>
+    selectInformationCardsByChitalishteId(state, chitalishte?.id)
+  );
   const [tabValue, setTabValue] = React.useState(0);
 
-  if (!selectedChitalishte) {
+  if (!chitalishte) {
     return null;
   }
 
   const handleBack = () => {
-    dispatch({ type: 'SELECT_CHITALISHTE', payload: null });
+    dispatch(clearCurrentChitalishte());
   };
 
   const handleTabChange = (event, newValue) => {
@@ -156,35 +304,19 @@ const ChitalishteDetail = () => {
 
   const {
     name,
-    location,
+    town,
     municipality,
     region,
     address,
-    phones = [],
-    emails = [],
-    website,
-    social_media,
+    phone,
+    email,
+    chitalishtaUrl,
     chairman,
     secretary,
-    eik,
-    is_registered,
-    building_ownership,
-    population,
-    yearlyData = {}
-  } = selectedChitalishte;
-
-  const ownershipLabels = {
-    unknown: 'Не е известно',
-    chitalishte: 'На читалището',
-    municipal: 'Общинска',
-    state: 'Държавна'
-  };
-
-  const registeredLabels = {
-    yes: 'Да',
-    no: 'Не',
-    unknown: 'Няма данни'
-  };
+    bulstat,
+    status,
+    registrationNumber
+  } = chitalishte;
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
@@ -193,38 +325,50 @@ const ChitalishteDetail = () => {
         <Button
           startIcon={<ArrowBack />}
           onClick={handleBack}
-          sx={{ mb: 2 }}
+          sx={{
+            mb: 2,
+            borderRadius: 2,
+            px: 3
+          }}
+          variant="outlined"
         >
-          Назад към списъка
+          Назад
         </Button>
-        
-        <Paper sx={{ p: 4, background: 'linear-gradient(135deg, #1e293b 0%, #475569 100%)', color: 'white' }}>
+
+        <Paper sx={{
+          p: 4,
+          background: 'linear-gradient(135deg, #1e293b 0%, #475569 100%)',
+          color: 'white',
+          borderRadius: 3,
+          boxShadow: '0 20px 40px rgba(0,0,0,0.1)'
+        }}>
           <Grid container alignItems="center" spacing={3}>
             <Grid item>
               <Box
                 sx={{
-                  width: 100,
-                  height: 100,
+                  width: 120,
+                  height: 120,
                   bgcolor: 'rgba(255,255,255,0.2)',
                   borderRadius: 3,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  backdropFilter: 'blur(10px)'
+                  backdropFilter: 'blur(10px)',
+                  border: '2px solid rgba(255,255,255,0.3)'
                 }}
               >
-                <Groups sx={{ fontSize: 48, color: 'white' }} />
+                <Groups sx={{ fontSize: 60, color: 'white' }} />
               </Box>
             </Grid>
             <Grid item xs>
-              <Typography variant="h3" component="h1" sx={{ mb: 1, fontWeight: 300 }}>
+              <Typography variant="h3" component="h1" sx={{ mb: 2, fontWeight: 300, lineHeight: 1.2 }}>
                 {name}
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <LocationOn sx={{ mr: 1 }} />
-                  <Typography variant="h6">
-                    {address}, {municipality}, {region}
+                  <LocationOn sx={{ mr: 1, fontSize: 24 }} />
+                  <Typography variant="h6" sx={{ fontWeight: 400 }}>
+                    {address}, {town}, {municipality}, {region}
                   </Typography>
                 </Box>
               </Box>
@@ -232,34 +376,51 @@ const ChitalishteDetail = () => {
           </Grid>
 
           {/* Contact Actions */}
-          <Box sx={{ display: 'flex', gap: 2, mt: 3, flexWrap: 'wrap' }}>
-            {phones.map((phone, index) => (
+          <Box sx={{ display: 'flex', gap: 2, mt: 4, flexWrap: 'wrap' }}>
+            {phone && (
               <Button
-                key={index}
                 variant="contained"
                 startIcon={<Phone />}
-                sx={{ bgcolor: 'rgba(255,255,255,0.2)', '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' } }}
+                sx={{
+                  bgcolor: 'rgba(255,255,255,0.2)',
+                  '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' },
+                  borderRadius: 2,
+                  px: 3,
+                  py: 1
+                }}
               >
                 {phone}
               </Button>
-            ))}
-            {emails.map((email, index) => (
+            )}
+            {email && (
               <Button
-                key={index}
                 variant="contained"
                 startIcon={<Email />}
-                sx={{ bgcolor: 'rgba(255,255,255,0.2)', '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' } }}
+                sx={{
+                  bgcolor: 'rgba(255,255,255,0.2)',
+                  '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' },
+                  borderRadius: 2,
+                  px: 3,
+                  py: 1
+                }}
               >
                 {email}
               </Button>
-            ))}
-            {website && (
+            )}
+            {chitalishtaUrl && (
               <Button
                 variant="contained"
                 startIcon={<Language />}
-                sx={{ bgcolor: 'rgba(255,255,255,0.2)', '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' } }}
-                href={website.startsWith('http') ? website : `https://${website}`}
+                sx={{
+                  bgcolor: 'rgba(255,255,255,0.2)',
+                  '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' },
+                  borderRadius: 2,
+                  px: 3,
+                  py: 1
+                }}
+                href={chitalishtaUrl.startsWith('http') ? chitalishtaUrl : `https://${chitalishtaUrl}`}
                 target="_blank"
+                rel="noopener noreferrer"
               >
                 Уебсайт
               </Button>
@@ -268,160 +429,176 @@ const ChitalishteDetail = () => {
         </Paper>
       </Box>
 
+      {/* Information Cards Alert */}
+      {informationCards.length === 0 && (
+        <Box sx={{ mb: 4 }}>
+          <Paper sx={{
+            p: 3,
+            background: 'linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%)',
+            borderRadius: 3
+          }}>
+            <Typography variant="h6" color="warning.dark" sx={{ mb: 1 }}>
+              ℹ️ Информационни карти
+            </Typography>
+            <Typography color="warning.dark">
+              За това читалище все още няма качени информационни карти. Данните ще станат достъпни след като бъдат добавени от администратора.
+            </Typography>
+          </Paper>
+        </Box>
+      )}
+
       {/* Tabs */}
-      <Paper sx={{ width: '100%' }}>
+      <Paper sx={{
+        width: '100%',
+        borderRadius: 3,
+        overflow: 'hidden',
+        boxShadow: '0 10px 30px rgba(0,0,0,0.1)'
+      }}>
         <Tabs
           value={tabValue}
           onChange={handleTabChange}
-          sx={{ borderBottom: 1, borderColor: 'divider' }}
+          sx={{
+            borderBottom: 1,
+            borderColor: 'divider',
+            backgroundColor: 'background.paper'
+          }}
+          TabIndicatorProps={{
+            style: {
+              backgroundColor: '#3f51b5',
+              height: 3
+            }
+          }}
         >
-          <Tab label="Основна информация" />
-          <Tab label="Статистика по години" />
-          <Tab label="Културни дейности" />
-          <Tab label="Проекти и персонал" />
+          <Tab label="Основна информация" sx={{ fontSize: '1rem', py: 2 }} />
+          <Tab label="Статистика по години" sx={{ fontSize: '1rem', py: 2 }} />
+          <Tab label="Културни дейности" sx={{ fontSize: '1rem', py: 2 }} />
+          <Tab label="Проекти и персонал" sx={{ fontSize: '1rem', py: 2 }} />
         </Tabs>
 
         {/* Basic Info Tab */}
         <TabPanel value={tabValue} index={0}>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
-              <Typography variant="h6" sx={{ mb: 2 }}>Контактна информация</Typography>
-              <Box sx={{ space: 1 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <LocationOn sx={{ mr: 1, color: 'primary.main' }} />
-                  <Typography><strong>Адрес:</strong> {address || 'Няма данни'}</Typography>
-                </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <Business sx={{ mr: 1, color: 'primary.main' }} />
-                  <Typography><strong>Община:</strong> {municipality || 'Няма данни'}</Typography>
-                </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <Business sx={{ mr: 1, color: 'primary.main' }} />
-                  <Typography><strong>Област:</strong> {region || 'Няма данни'}</Typography>
-                </Box>
-              </Box>
-            </Grid>
-
-            <Grid item xs={12} md={6}>
-              <Typography variant="h6" sx={{ mb: 2 }}>Ръководство и регистрация</Typography>
-              <Box sx={{ space: 1 }}>
-                {chairman && (
-                  <Typography sx={{ mb: 1 }}><strong>Председател:</strong> {chairman}</Typography>
-                )}
-                {secretary && (
-                  <Typography sx={{ mb: 1 }}><strong>Секретар:</strong> {secretary}</Typography>
-                )}
-                {eik && (
-                  <Typography sx={{ mb: 1 }}><strong>ЕИК:</strong> {eik}</Typography>
-                )}
-                <Typography sx={{ mb: 1 }}>
-                  <strong>Регистрация:</strong> {registeredLabels[is_registered] || 'Няма данни'}
+          <Box sx={{ px: 3 }}>
+            <Grid container spacing={4}>
+              <Grid item xs={12} md={6}>
+                <Typography variant="h5" sx={{ mb: 3, color: 'primary.main', fontWeight: 600 }}>
+                  Контактна информация
                 </Typography>
-              </Box>
-            </Grid>
+                <Box sx={{ space: 2 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, p: 2, backgroundColor: 'grey.50', borderRadius: 2 }}>
+                    <LocationOn sx={{ mr: 2, color: 'primary.main', fontSize: 28 }} />
+                    <Box>
+                      <Typography variant="subtitle2" color="text.secondary">Адрес</Typography>
+                      <Typography variant="body1" sx={{ fontWeight: 500 }}>{address || 'Няма данни'}</Typography>
+                    </Box>
+                  </Box>
 
-            <Grid item xs={12}>
-              <Typography variant="h6" sx={{ mb: 2 }}>Допълнителна информация</Typography>
-              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                <Chip 
-                  icon={<Home />}
-                  label={`Собственост: ${ownershipLabels[building_ownership] || 'Няма данни'}`}
-                  variant="outlined"
-                />
-                <Chip 
-                  icon={<People />}
-                  label={`Жители: ${population ? population.toLocaleString() : 'Няма данни'}`}
-                  variant="outlined"
-                />
-                {social_media && (
-                  <Chip 
-                    icon={<Language />}
-                    label={`Социални мрежи: ${social_media}`}
-                    variant="outlined"
-                    clickable
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, p: 2, backgroundColor: 'grey.50', borderRadius: 2 }}>
+                    <Business sx={{ mr: 2, color: 'primary.main', fontSize: 28 }} />
+                    <Box>
+                      <Typography variant="subtitle2" color="text.secondary">Община</Typography>
+                      <Typography variant="body1" sx={{ fontWeight: 500 }}>{municipality || 'Няма данни'}</Typography>
+                    </Box>
+                  </Box>
+
+                  <Box sx={{ display: 'flex', alignItems: 'center', p: 2, backgroundColor: 'grey.50', borderRadius: 2 }}>
+                    <Business sx={{ mr: 2, color: 'primary.main', fontSize: 28 }} />
+                    <Box>
+                      <Typography variant="subtitle2" color="text.secondary">Област</Typography>
+                      <Typography variant="body1" sx={{ fontWeight: 500 }}>{region || 'Няма данни'}</Typography>
+                    </Box>
+                  </Box>
+                </Box>
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <Typography variant="h5" sx={{ mb: 3, color: 'primary.main', fontWeight: 600 }}>
+                  Ръководство и регистрация
+                </Typography>
+                <Box sx={{ space: 2 }}>
+                  {chairman && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, p: 2, backgroundColor: 'grey.50', borderRadius: 2 }}>
+                      <People sx={{ mr: 2, color: 'secondary.main', fontSize: 28 }} />
+                      <Box>
+                        <Typography variant="subtitle2" color="text.secondary">Председател</Typography>
+                        <Typography variant="body1" sx={{ fontWeight: 500 }}>{chairman}</Typography>
+                      </Box>
+                    </Box>
+                  )}
+
+                  {secretary && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, p: 2, backgroundColor: 'grey.50', borderRadius: 2 }}>
+                      <Work sx={{ mr: 2, color: 'secondary.main', fontSize: 28 }} />
+                      <Box>
+                        <Typography variant="subtitle2" color="text.secondary">Секретар</Typography>
+                        <Typography variant="body1" sx={{ fontWeight: 500 }}>{secretary}</Typography>
+                      </Box>
+                    </Box>
+                  )}
+
+                  {bulstat && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', p: 2, backgroundColor: 'grey.50', borderRadius: 2 }}>
+                      <LibraryBooks sx={{ mr: 2, color: 'secondary.main', fontSize: 28 }} />
+                      <Box>
+                        <Typography variant="subtitle2" color="text.secondary">Булстат</Typography>
+                        <Typography variant="body1" sx={{ fontWeight: 500 }}>{bulstat}</Typography>
+                      </Box>
+                    </Box>
+                  )}
+                </Box>
+              </Grid>
+
+              <Grid item xs={12}>
+                <Typography variant="h5" sx={{ mb: 3, color: 'primary.main', fontWeight: 600 }}>
+                  Допълнителна информация
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                  <Chip
+                    icon={<Home />}
+                    label={`Статус: ${status || 'Действащо'}`}
+                    variant="filled"
+                    color={status === 'Закрито' ? 'error' : 'success'}
+                    sx={{ px: 2, py: 1, fontSize: '0.9rem' }}
                   />
-                )}
-              </Box>
+                  <Chip
+                    icon={<People />}
+                    label={`Рег. номер: ${registrationNumber || 'Няма данни'}`}
+                    variant="outlined"
+                    sx={{ px: 2, py: 1, fontSize: '0.9rem' }}
+                  />
+                </Box>
+              </Grid>
             </Grid>
-          </Grid>
+          </Box>
         </TabPanel>
 
         {/* Yearly Statistics Tab */}
         <TabPanel value={tabValue} index={1}>
-          <Typography variant="h5" sx={{ mb: 3 }}>Статистика по години</Typography>
-          
-          {[2023, 2022, 2021].map(year => (
-            yearlyData[year] && (
-              <YearlyDataTable 
-                key={year}
-                data={yearlyData[year]}
-                year={year}
-              />
-            )
-          ))}
+          <Box sx={{ px: 3 }}>
+            <Typography variant="h4" sx={{ mb: 4, color: 'primary.main', fontWeight: 600 }}>
+              Статистика по години
+            </Typography>
+            <YearlyDataTable informationCards={informationCards} />
+          </Box>
         </TabPanel>
 
         {/* Cultural Activities Tab */}
         <TabPanel value={tabValue} index={2}>
-          <Typography variant="h5" sx={{ mb: 3 }}>Културни дейности</Typography>
-          
-          {[2023, 2022, 2021].map(year => (
-            yearlyData[year] && (
-              <CulturalActivitiesSection 
-                key={year}
-                data={yearlyData[year]}
-                year={year}
-              />
-            )
-          ))}
+          <Box sx={{ px: 3 }}>
+            <Typography variant="h4" sx={{ mb: 4, color: 'primary.main', fontWeight: 600 }}>
+              Културни дейности
+            </Typography>
+            <CulturalActivitiesSection informationCards={informationCards} />
+          </Box>
         </TabPanel>
 
         {/* Projects and Staff Tab */}
         <TabPanel value={tabValue} index={3}>
-          <Typography variant="h5" sx={{ mb: 3 }}>Проекти и персонал</Typography>
-          
-          {[2023, 2022, 2021].map(year => (
-            yearlyData[year] && (
-              <Box key={year} sx={{ mb: 4 }}>
-                <Typography variant="h6" sx={{ mb: 2 }}>{year} година</Typography>
-                <Grid container spacing={3}>
-                  <Grid item xs={12} md={6}>
-                    <Paper sx={{ p: 3 }}>
-                      <Typography variant="h6" sx={{ mb: 2 }} color="primary">Проекти</Typography>
-                      <Box sx={{ space: 1 }}>
-                        <Typography>
-                          <strong>Самостоятелни проекти:</strong> {yearlyData[year].projects_participation_leading || 0}
-                        </Typography>
-                        <Typography>
-                          <strong>Проекти в сътрудничество:</strong> {yearlyData[year].projects_participation_partner || 0}
-                        </Typography>
-                        <Typography>
-                          <strong>Участия в обучения:</strong> {yearlyData[year].participation_in_trainings || 0}
-                        </Typography>
-                      </Box>
-                    </Paper>
-                  </Grid>
-                  
-                  <Grid item xs={12} md={6}>
-                    <Paper sx={{ p: 3 }}>
-                      <Typography variant="h6" sx={{ mb: 2 }} color="secondary">Персонал</Typography>
-                      <Box sx={{ space: 1 }}>
-                        <Typography>
-                          <strong>Общ персонал:</strong> {yearlyData[year].employees_count || 0}
-                        </Typography>
-                        <Typography>
-                          <strong>Субсидирани бройки:</strong> {yearlyData[year].subsidiary_count || 0}
-                        </Typography>
-                        <Typography>
-                          <strong>Специалисти с висше:</strong> {yearlyData[year].employees_with_higher_education || 0}
-                        </Typography>
-                      </Box>
-                    </Paper>
-                  </Grid>
-                </Grid>
-              </Box>
-            )
-          ))}
+          <Box sx={{ px: 3 }}>
+            <Typography variant="h4" sx={{ mb: 4, color: 'primary.main', fontWeight: 600 }}>
+              Проекти и персонал
+            </Typography>
+            <ProjectsAndStaffSection informationCards={informationCards} />
+          </Box>
         </TabPanel>
       </Paper>
     </Container>
